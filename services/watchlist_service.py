@@ -58,6 +58,33 @@ def add_to_watchlist(user_id, film_id, public=True):
     return entry
 
 
+def remove_from_watchlist(user_id, film_id):
+    """
+    Remove a film from a user's watchlist.
+
+    Args:
+        user_id (str): UUID of the user.
+        film_id (str): UUID of the film.
+
+    Returns:
+        bool: True if the entry was removed.
+
+    Raises:
+        NotInWatchlistError: If the film is not in the user's watchlist.
+    """
+    entry = WatchlistEntry.query.filter_by(
+        user_id=user_id, film_id=film_id
+    ).first()
+    if entry is None:
+        raise NotInWatchlistError(
+            f"Film '{film_id}' is not in this user's watchlist"
+        )
+
+    db.session.delete(entry)
+    db.session.commit()
+    return True
+
+
 def get_watchlist(user_id):
     """
     Return all films in a user's watchlist, sorted by date added (newest first).
